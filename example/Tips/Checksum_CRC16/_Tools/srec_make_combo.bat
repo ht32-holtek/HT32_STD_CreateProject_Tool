@@ -1,8 +1,8 @@
 @ECHO OFF
 REM /*********************************************************************************************************//**
 REM * @file    srec_make_combo.bat
-REM * @version $Rev:: 439          $
-REM * @date    $Date:: 2025-06-18 #$
+REM * @version $Rev:: 446          $
+REM * @date    $Date:: 2025-06-20 #$
 REM * @brief   Add CRC checksum into hex and binary and encrypt AP image.
 REM *************************************************************************************************************
 REM * @attention
@@ -406,14 +406,15 @@ ECHO ---------------------------------------------------------------------------
 ECHO   Input Hex file        = %IN_FULL_PATH%\%INPUT_FILE%
 ECHO   AP Start Address      = %AP_STA%
 ECHO --------------------------------------------------------------------------------
-ECHO   Output Encrypted file = %IN_FULL_PATH%\%OUTPUT_FILE%
-ECHO   Copy to %IN_FULL_PATH%
-ECHO                         = %IN_FULL_PATH%\%AP_FILE_BIN2%
-ECHO                         = %IN_FULL_PATH%\%AP_FILE_BIN%
+ECHO   Output Encrypted file = %IN_FULL_PATH%\%AP_FILE_BIN2%
+ECHO   Copy to %TOOL_PATH%
+ECHO                         = %TOOL_PATH%\%AP_FILE_BIN2%
+ECHO                         = %TOOL_PATH%\%AP_FILE_BIN%
 ECHO --------------------------------------------------------------------------------
 
-COPY /Y "%IN_FULL_PATH%\%OUTPUT_FILE%" "%IN_FULL_PATH%\%AP_FILE_BIN%"  1>> nul 2>&1
 COPY /Y "%IN_FULL_PATH%\%OUTPUT_FILE%" "%IN_FULL_PATH%\%AP_FILE_BIN2%"  1>> nul 2>&1
+COPY /Y "%IN_FULL_PATH%\%OUTPUT_FILE%" "%TOOL_PATH%\%AP_FILE_BIN%"  1>> nul 2>&1
+COPY /Y "%IN_FULL_PATH%\%OUTPUT_FILE%" "%TOOL_PATH%\%AP_FILE_BIN2%"  1>> nul 2>&1
 
 DEL /Q ".\%TABLE%" 1>> nul 2>&1
 
