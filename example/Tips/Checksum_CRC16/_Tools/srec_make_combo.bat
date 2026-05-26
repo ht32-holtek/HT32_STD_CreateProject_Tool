@@ -1,8 +1,8 @@
 @ECHO OFF
 REM /*********************************************************************************************************//**
 REM * @file    srec_make_combo.bat
-REM * @version $Rev:: 446          $
-REM * @date    $Date:: 2025-06-20 #$
+REM * @version $Rev:: 527          $
+REM * @date    $Date:: 2026-03-31 #$
 REM * @brief   Add CRC checksum into hex and binary and encrypt AP image.
 REM *************************************************************************************************************
 REM * @attention
@@ -88,6 +88,7 @@ SET CMP_RESULT=0
 SET SHOW_CRC_CHECK_MSG=0
 SET HEX_ENCODE=0
 SET AP_ENCRYPT=0
+SET AP_SINGLE_BIN=0
 
 IF %VAR_MODE% EQU keil (
 SET IN_PROJECT_PATH=
@@ -251,6 +252,27 @@ SET AP_3=%AP_SAVE:~0,2%
 SET AP_2=%AP_SAVE:~2,2%
 SET AP_1=%AP_SAVE:~4,2%
 SET AP_0=%AP_SAVE:~6,2%
+
+IF %VAR_MODE% EQU keil (
+IF %AP_SINGLE_BIN% EQU 1 (
+REM Binary File Process (Rename single IAP_AP.axf.bin to AP and move to IAP_AP.axf.bin\)
+REM ==================================================================================================
+del .\HT32\%ICNAME%\%IN_OBJ_PATH%\AP 1>> nul 2>&1
+ren .\HT32\%ICNAME%\%IN_OBJ_PATH%\IAP_AP.axf.bin AP 1>> nul 2>&1
+rmdir /s /q .\HT32\%ICNAME%\%IN_OBJ_PATH%\IAP_AP.axf.bin 1>> nul 2>&1
+rmdir /s /q .\HT32\%ICNAME%\%IN_OBJ_PATH%\IAP_AP.axf.bin.bak 1>> nul 2>&1
+mkdir .\HT32\%ICNAME%\%IN_OBJ_PATH%\IAP_AP.axf.bin 1>> nul 2>&1
+move .\HT32\%ICNAME%\%IN_OBJ_PATH%\AP .\HT32\%ICNAME%\%IN_OBJ_PATH%\IAP_AP.axf.bin\AP 1>> nul 2>&1
+
+REM Cat IAP.hex and AP.hex
+REM ==================================================================================================
+ren .\HT32\%ICNAME%\%IN_OBJ_PATH%\IAP_AP.hex AP.hex 1>> nul 2>&1
+%SREC_CAT% .\HT32\%ICNAME%\%IN_OBJ_PATH%\AP.hex -intel .\HT32\%ICNAME%\IAP\Obj\IAP.hex -intel -exclude %AP_STA% %AP_END1% -o .\HT32\%ICNAME%\%IN_OBJ_PATH%\IAP_AP.hex -intel
+del .\HT32\%ICNAME%\%IN_OBJ_PATH%\AP.hex 1>> nul 2>&1
+)
+)
+
+:SKIP_BIN_PROCESS
 
 ECHO --------------------------------------------------------------------------------
 ECHO   AP Start/End Address  = %AP_STA% ~ 0x%AP_END% (Length = %AP_LEN%, 0x%AP_LEN_HEX%)
@@ -508,6 +530,12 @@ COPY /Y "%IN_FULL_PATH_BIN%\%D_FILE_BIN%" "%HOST_PATH%\%D_FILE_BIN2%" 1>> nul 2>
 
 DEL /Q .\digest.txt 1>> nul 2>&1
 DEL /Q  %IN_FULL_PATH_BIN%\%IN_FILE_BIN% 1>> nul 2>&1
+
+IF %VAR_MODE% EQU keil (
+IF %AP_SINGLE_BIN% EQU 1 (
+ren .\HT32\%ICNAME%\%IN_OBJ_PATH%\IAP_AP.axf.bin IAP_AP.axf.bin.bak 1>> nul 2>&1
+)
+)
 
 REM ***************************************************************
 REM Get Address
